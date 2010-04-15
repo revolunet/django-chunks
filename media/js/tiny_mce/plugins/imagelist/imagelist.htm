@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>{#imagelist_dlg.title}</title>
+	<script type="text/javascript" src="../../tiny_mce_popup.js"></script>
+	<script type="text/javascript" src="js/imagelist.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <style>
+    .img_thumb {
+        margin:3px;
+        border:1px solid silver;
+        cursor:pointer;
+    }
+ 
+    </style>
+</head>
+<body style="display: none">
+	<div align="center">
+		<div class="title">{#imagelist_dlg.title}:<br /><br /></div>
+        <form method="POST" action="/chunks/imageupload" enctype="multipart/form-data">
+            <input type=file name=file   />
+            <input type=hidden id=from name=from value=""/>
+            <input type=submit />
+        </form>
+        <div id='thumbs' style='height:300px;overflow-y:hidden'>
+		<br>
+        	<div class="title">{#imagelist_dlg.intro}:<br /><br /></div>
+        
+        </div>
+    <script language="javascript">
+        function clickImage(image) {
+            ImageListDialog.insert('/chunks/media/' + image, image);
+        }
+        
+        function showImages() {
+            $.post("/chunks/imagelist", {},
+               function(data){
+                for (im in data.images) {
+                    image = data.images[im];
+                    action = 'ImageListDialog.insert("/chunks/media/' + image + '","/chunks/media/' + image + '")';
+                    $('div#thumbs').append('<img class=img_thumb onclick="clickImage(\''+image+'\');" border=0 title="' + image + '" width=160 height=120 src="/chunks/media/' + image + ' "/></a>');
+                }
+               }, "json");
+        }
+           
+        $(document).ready(function() {
+             document.getElementById('from').value = document.location;
+             showImages();
+        });
+           
+    </script>
+</body>
+</html>

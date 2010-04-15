@@ -2,8 +2,19 @@ Think of it as flatpages for small bits of reusable content you might want to in
 
 This is really nothing more than a model and a template tag.
 
+I added a TinyMce in admin and image upload views
+
 By adding `chunks` to your installed apps list in your Django project and performing a `./manage.py syncdb`, you'll be able to add as many "keyed" bits of content chunks to your site.
 
+set setttings.CHUNKS_UPLOAD_ROOT  
+
+add to urls.py :
+    # upload views
+    urlpatterns += patterns('', (r'^admin/chunks/views/.*',        include('chunks.urls')),
+    
+add a static mapping from /chunks/media to your setttings.CHUNKS_UPLOAD_ROOT   (included un urls.py for dev only)
+
+   
 The idea here is that you can create a chunk of content, name it with a unique key (for example: `home_page_left_bottom`) and then you can call this content from a normal template.
 
 ### Why would anyone want this? ###
