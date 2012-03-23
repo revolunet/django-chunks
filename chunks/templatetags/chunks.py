@@ -39,12 +39,11 @@ class ChunkNode(template.Node):
             if c is None:
                 c = Chunk.objects.filter(key=self.key, lang__iexact=language)
                 if c.count() == 0:
-                    c = Chunk.objects.filter(key=self.key)[0]
-                else:
-                    c = c[0]
+                    c = Chunk.objects.filter(key=self.key)
+                c = c[0]
                 cache.set(cache_key, c, int(self.cache_time))
             content = c.content
-        except Chunk.DoesNotExist:
+        except (Chunk.DoesNotExist, IndexError):
             content = ''
         return content
 
