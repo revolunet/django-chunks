@@ -1,11 +1,13 @@
 from django import template
 from django.db import models
 from django.core.cache import cache
+from django.utils import translation
 
 register = template.Library()
 
 Chunk = models.get_model('chunks', 'chunk')
 CACHE_PREFIX = "chunk_"
+
 
 def do_get_chunk(parser, token):
     # split_contents() knows not to split quoted strings.
@@ -22,22 +24,28 @@ def do_get_chunk(parser, token):
         raise template.TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
     # Send key without quotes and caching time
     return ChunkNode(key[1:-1], cache_time)
-    
+
+
 class ChunkNode(template.Node):
     def __init__(self, key, cache_time=0):
-       self.key = key
-       self.cache_time = cache_time
-    
+        self.key = key
+        self.cache_time = cache_time
+
     def render(self, context):
+        language = translation.get_language()
         try:
-            cache_key = CACHE_PREFIX + self.key
+            cache_key = CACHE_PREFIX + self.key + language
             c = cache.get(cache_key)
             if c is None:
-                c = Chunk.objects.get(key=self.key)
+                c = Chunk.objects.filter(key=self.key, lang__iexact=language)
+                if c.count() == 0:
+                    c = Chunk.objects.filter(key=self.key)[0]
+                else:
+                    c = c[0]
                 cache.set(cache_key, c, int(self.cache_time))
             content = c.content
         except Chunk.DoesNotExist:
             content = ''
         return content
-        
+
 register.tag('chunk', do_get_chunk)
