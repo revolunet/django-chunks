@@ -1,3 +1,4 @@
+# -*- encoding: UTF-8 -*-
 from django import template
 from django.db import models
 from django.core.cache import cache
